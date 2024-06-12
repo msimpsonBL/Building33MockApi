@@ -1,3 +1,5 @@
+using StackExchange.Redis;
+
 namespace Building33MockApi
 {
     public class Program
@@ -7,6 +9,11 @@ namespace Building33MockApi
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddScoped<IDatabase>(cfg =>
+            {
+                ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS_HOST"));
+                return redis.GetDatabase();
+            });
 
             builder.Services.AddGrpc().AddJsonTranscoding();
             builder.Services.AddGrpcReflection();

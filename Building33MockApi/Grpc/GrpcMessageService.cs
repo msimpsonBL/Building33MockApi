@@ -4,12 +4,16 @@ using StackExchange.Redis;
 
 public class GrpcMessageService : GatewayGrpcMessagingService.GatewayGrpcMessagingServiceBase
 {
+    private readonly IDatabase _db;
+
+    public GrpcMessageService(IDatabase db)
+    {
+        _db = db;
+    }
+    
     public override Task<RSIRecieved> CreateStorageItemRequest(RSIMessage request, ServerCallContext context)
     {
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
-        IDatabase db = redis.GetDatabase();
-
-        db.StringSet(DateTime.Now.ToString(), request.ToString());
+        _db.StringSet(DateTime.Now.ToString(), request.ToString());
 
         return Task.FromResult(new RSIRecieved { ItemIdentity = request.ItemIdentity });
     }
