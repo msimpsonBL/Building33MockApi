@@ -8,10 +8,16 @@ namespace Building33MockApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var connectionString = Environment.GetEnvironmentVariable("REDIS_HOST");
+            if(String.IsNullOrEmpty(connectionString))
+            {
+                connectionString = builder.Configuration.GetConnectionString("RedisConnection");
+            }
+
             // Add services to the container.
             builder.Services.AddScoped<IDatabase>(cfg =>
             {
-                ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS_HOST"));
+                ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(connectionString);
                 return redis.GetDatabase();
             });
 
