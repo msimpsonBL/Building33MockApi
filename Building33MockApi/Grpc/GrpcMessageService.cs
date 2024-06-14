@@ -13,7 +13,7 @@ public class GrpcMessageService : GatewayGrpcMessagingService.GatewayGrpcMessagi
     
     public override Task<RSIRecieved> CreateStorageItemRequest(RSIMessage request, ServerCallContext context)
     {
-        _db.StringSet(DateTime.Now.ToString(), request.ToString());
+        _db.StringSet(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss.FFFFFFF"), request.ToString());
 
         return Task.FromResult(new RSIRecieved { ItemIdentity = request.ItemIdentity });
     }

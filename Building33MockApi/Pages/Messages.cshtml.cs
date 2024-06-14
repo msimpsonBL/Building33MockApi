@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StackExchange.Redis;
 using System.Net;
@@ -28,6 +29,13 @@ namespace Building33MockApi.Pages
                 var value = _cache.StringGet(key);
                 Messages.Add(new KeyValuePair<DateTime, string>(DateTime.Parse(key), value.ToString()));
             }
+        }
+
+        public IActionResult OnPost()
+        {
+            EndPoint endPoint = _cache.Multiplexer.GetEndPoints().First();
+            _cache.Multiplexer.GetServer(endPoint).FlushDatabase();
+            return RedirectToPage("/messages");
         }
     }
 }

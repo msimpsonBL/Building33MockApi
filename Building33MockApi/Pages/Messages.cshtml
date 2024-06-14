@@ -12,6 +12,12 @@
                 <div class="row">
                     <h1>Building 33 Mock Api Messages</h1>
                 </div>
+                <div class="row mb-3">
+                    <form method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Delete all messages</button>
+                    </form>
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                     @if (Model.Messages.Count > 0)
