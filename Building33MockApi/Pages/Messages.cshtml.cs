@@ -1,40 +1,41 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using StackExchange.Redis;
 using System.Net;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Building33MockApi.Pages
 {
     public class MessagesModel : PageModel
     {
-        private readonly IDatabase _cache;
-        public List<KeyValuePair<DateTime, string>> Messages;
+        private readonly ICacheHandler _cacheHandler;
+        public readonly ILogger<MessagesModel> _logger;
 
-        public MessagesModel(IDatabase cache) {
-            _cache = cache;
+        public List<KeyValuePair<string, string>> Messages { get; set; }
+
+        public MessagesModel(ICacheHandler cacheHandler, ILogger<MessagesModel> logger)
+        {
+            _cacheHandler = cacheHandler;
+            _logger = logger;
         }
 
         public void OnGet()
         {
-            Messages = new List<KeyValuePair<DateTime, string>>();
-            //var redisConnection = Environment.GetEnvironmentVariable("REDIS");
+            Messages = new List<KeyValuePair<string, string>>();
 
-            //ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(redisConnection);
-            //IDatabase db = redis.GetDatabase();
-            EndPoint endPoint = _cache.Multiplexer.GetEndPoints().First();
-            var keys = _cache.Multiplexer.GetServer(endPoint).Keys();
+            var keys = _cacheHandler.StringGetAll();
 
             foreach (var key in keys)
             {
-                var value = _cache.StringGet(key);
-                Messages.Add(new KeyValuePair<DateTime, string>(DateTime.Parse(key), value.ToString()));
+                var value = _cacheHandler.StringGetAsync(key).Result;
+                Messages.Add(new KeyValuePair<string, string>(key.ToString(), value.ToString()));
             }
         }
 
         public IActionResult OnPost()
         {
-            EndPoint endPoint = _cache.Multiplexer.GetEndPoints().First();
-            _cache.Multiplexer.GetServer(endPoint).FlushDatabase();
+            _cacheHandler.FlushAll();
             return RedirectToPage("/messages");
         }
     }

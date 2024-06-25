@@ -9,10 +9,10 @@ EXPOSE 8091
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/Microservices/Building33MockApi/Building33MockApi.csproj", "src/Microservices/Building33MockApi/"]
-RUN dotnet restore "./src/Microservices/Building33MockApi/./Building33MockApi.csproj"
+COPY ["Building33MockApi/Building33MockApi.csproj", "Building33MockApi/"]
+RUN dotnet restore "./Building33MockApi/./Building33MockApi.csproj"
 COPY . .
-WORKDIR "/src/src/Microservices/Building33MockApi"
+WORKDIR "/src/Building33MockApi"
 RUN dotnet build "./Building33MockApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
