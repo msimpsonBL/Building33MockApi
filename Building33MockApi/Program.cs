@@ -1,3 +1,5 @@
+using Building33MockApi.Services;
+using Serilog;
 using StackExchange.Redis;
 
 namespace Building33MockApi
@@ -8,22 +10,32 @@ namespace Building33MockApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddHttpContextAccessor();
+
+            builder.Host.UseSerilog((context, configuration) =>
+            {
+                configuration.ReadFrom.Configuration(context.Configuration);
+            });
+
             var connectionString = Environment.GetEnvironmentVariable("REDIS_HOST");
             if(String.IsNullOrEmpty(connectionString))
             {
                 connectionString = builder.Configuration.GetConnectionString("RedisConnection");
             }
 
-            // Add services to the container.
-            builder.Services.AddScoped<IDatabase>(cfg =>
+            builder.Services.AddSingleton<IRedisDbProvider>(provider =>
             {
-                ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(connectionString);
-                return redis.GetDatabase();
+                return new RedisDbProvider(connectionString);
             });
+            builder.Services.AddSingleton<ICacheHandler, RedisCacheHandler>();
+
+
+            builder.Services.AddScoped<MessageService>();
 
             builder.Services.AddGrpc().AddJsonTranscoding();
             builder.Services.AddGrpcReflection();
             builder.Services.AddGrpcSwagger();
+            builder.Services.AddControllers();
             builder.Services.AddRazorPages();
 
             builder.Services.AddSwaggerGen(c =>
@@ -38,18 +50,21 @@ namespace Building33MockApi
 
             var app = builder.Build();
 
+            app.UseSerilogRequestLogging();
+
             // Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())
             //{
-                app.UseSwagger();
-                app.UseSwaggerUI();
+            app.UseSwagger();
+            app.UseSwaggerUI();
             //}
             app.UseCors("AllowAll");
             app.MapGrpcService<GrpcMessageService>();
-            app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+            //app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
             app.MapSwagger();
             app.MapGrpcReflectionService();
             app.MapRazorPages();
+            app.MapControllers();
 
             app.Run();
         }
