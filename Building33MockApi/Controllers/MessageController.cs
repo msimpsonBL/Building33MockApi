@@ -33,7 +33,7 @@ namespace Building33MockApi.Controllers
             {
                 _logger.LogError(ex, "Error creating storage item request");
             }
-            var returnResult = new RsiReceivedMessage { ItemIdentity = value.ItemIdentity };
+            var returnResult = new RsiReceivedMessage { ItemIdentity = value.Identifier };
             return Ok(returnResult);
         }
 
