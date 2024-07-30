@@ -1,4 +1,7 @@
 using Building33MockApi.Services;
+using Elastic.CommonSchema.Serilog;
+using Elastic.Ingest.Elasticsearch;
+using Elastic.Serilog.Sinks;
 using Serilog;
 using StackExchange.Redis;
 
@@ -14,7 +17,15 @@ namespace Building33MockApi
 
             builder.Host.UseSerilog((context, configuration) =>
             {
-                configuration.ReadFrom.Configuration(context.Configuration);
+                var httpAccessor = context.Configuration.Get<HttpContextAccessor>();
+                configuration.ReadFrom.Configuration(context.Configuration)
+                             .Enrich.WithEcsHttpContext(httpAccessor)
+                             .Enrich.WithEnvironmentName()
+                             .WriteTo.ElasticCloud(context.Configuration["ElasticCloud:CloudId"], context.Configuration["ElasticCloud:CloudUser"], context.Configuration["ElasticCloud:CloudPass"], opts =>
+                             {
+                                 opts.DataStream = new Elastic.Ingest.Elasticsearch.DataStreams.DataStreamName("gateway-building33mockapi-new-logs");
+                                 opts.BootstrapMethod = BootstrapMethod.Failure;
+                             });
             });
 
             var connectionString = Environment.GetEnvironmentVariable("REDIS_HOST");

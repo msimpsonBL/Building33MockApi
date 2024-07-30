@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Elastic.Serilog.Sinks" Version="8.11.1" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.62.0" />
     <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.62.0" />
     <PackageReference Include="Grpc.Core" Version="2.46.6" />
