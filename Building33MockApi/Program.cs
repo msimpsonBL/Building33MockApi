@@ -15,23 +15,33 @@ namespace Building33MockApi
 
             builder.Services.AddHttpContextAccessor();
 
+            //builder.Host.UseSerilog((context, configuration) =>
+            //{
+            //    var httpAccessor = context.Configuration.Get<HttpContextAccessor>();
+            //    configuration.ReadFrom.Configuration(context.Configuration)
+            //                 .Enrich.WithEcsHttpContext(httpAccessor)
+            //                 .Enrich.WithEnvironmentName()
+            //                 .WriteTo.ElasticCloud(context.Configuration["ElasticCloud:CloudId"], context.Configuration["ElasticCloud:CloudUser"], context.Configuration["ElasticCloud:CloudPass"], opts =>
+            //                 {
+            //                     opts.DataStream = new Elastic.Ingest.Elasticsearch.DataStreams.DataStreamName("gateway-building33mockapi-new-logs");
+            //                     opts.BootstrapMethod = BootstrapMethod.Failure;
+            //                 });
+            //});
+
             builder.Host.UseSerilog((context, configuration) =>
             {
-                var httpAccessor = context.Configuration.Get<HttpContextAccessor>();
-                configuration.ReadFrom.Configuration(context.Configuration)
-                             .Enrich.WithEcsHttpContext(httpAccessor)
-                             .Enrich.WithEnvironmentName()
-                             .WriteTo.ElasticCloud(context.Configuration["ElasticCloud:CloudId"], context.Configuration["ElasticCloud:CloudUser"], context.Configuration["ElasticCloud:CloudPass"], opts =>
-                             {
-                                 opts.DataStream = new Elastic.Ingest.Elasticsearch.DataStreams.DataStreamName("gateway-building33mockapi-new-logs");
-                                 opts.BootstrapMethod = BootstrapMethod.Failure;
-                             });
+                configuration.ReadFrom.Configuration(context.Configuration);
             });
 
             var connectionString = Environment.GetEnvironmentVariable("REDIS_HOST");
             if(String.IsNullOrEmpty(connectionString))
             {
                 connectionString = builder.Configuration.GetConnectionString("RedisConnection");
+            }
+
+            if (String.IsNullOrEmpty(connectionString))
+            {
+                throw new Exception("The connection string for Redis is empty!!!");
             }
 
             builder.Services.AddSingleton<IRedisDbProvider>(provider =>

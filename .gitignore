@@ -3,3 +3,5 @@ Building33MockApi/bin
 Building33MockApi/obj
 Building33MockApi/Properties
 Building33MockApi/Building33MockApi.csproj.user
+*.user
+Building33MockApi/params.txt
