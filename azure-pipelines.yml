@@ -1,0 +1,33 @@
+trigger: none
+
+parameters:
+  - name: githubArtifactUrl
+    type: string
+    default: ''
+
+variables:
+  # Name of the Azure Web App
+  webAppName: "building33MockApi"
+
+steps:
+  # Step 1: Download the artifact from GitHub
+  - script: |
+      echo "Downloading artifact from ${{ parameters.githubArtifactUrl }}"
+      curl -L -o artifact.zip "${{ parameters.githubArtifactUrl }}"
+      unzip artifact.zip -d ./downloaded-artifacts
+    displayName: "Download artifact from GitHub Actions"
+
+  # Step 2: List downloaded artifact contents (for debugging)
+  - script: |
+      echo "Contents of downloaded artifact:"
+      ls ./downloaded-artifacts
+    displayName: "List downloaded artifacts"
+
+  # Step 3: Deploy to Azure Web App
+  - task: AzureWebApp@1
+    displayName: "Deploy to Azure Web App"
+    inputs:
+      appType: webAppLinux
+      azureSubscription: 'Gateway-Resources-IAC-MI-Conn-2' # Service connection to Azure
+      appName: "$(webAppName)"
+      package: "$(Pipeline.Workspace)/downloaded-artifacts" # Path to the downloaded files
