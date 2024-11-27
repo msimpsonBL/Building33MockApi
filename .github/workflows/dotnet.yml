@@ -1,66 +1,45 @@
-name: Build and deploy ASP.Net Core app to Azure DevOps Pipeline
+name: Build and Publish Docker Image to Docker Hub and Trigger Azure Release
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
+      # Step 2: Login to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
-          dotnet-version: '8.x'
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
-
-      - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
-
-      - name: Get Artifact URL
-        id: artifact-url
+      # Step 3: Build the Docker image
+      - name: Build Docker image
         run: |
-          echo "##[set-output name=artifact_url;]$(echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/artifacts/$(echo ${{ steps.upload-artifact.outputs.artifact-id }}))"
-        shell: bash
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:latest -f ./Dockerfile .
 
+      # Step 4: Push Docker image to Docker Hub
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:latest
+
+      # Step 5: Trigger Azure Release Pipeline
       - name: Trigger Azure DevOps Pipeline
-        env:
-          AZURE_DEVOPS_ORG: ${{ secrets.AZURE_DEVOPS_ORG }}
-          AZURE_DEVOPS_PROJECT: ${{ secrets.AZURE_DEVOPS_PROJECT_URL }}
-          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
-        run: |
-          PIPELINE_NAME="thattonBL.Building33MockApi"
-          PIPELINE_API_URL="https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}/_apis/pipelines/${PIPELINE_NAME}/runs?api-version=6.0-preview.1"
-
-          ARTIFACT_URL="${{ steps.artifact-url.outputs.artifact_url }}"
-
-          curl -X POST \
-            -H "Authorization: Basic $(echo -n :${{ env.AZURE_DEVOPS_PAT }} | base64)" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "resources": {
-                "repositories": {
-                  "self": {
-                    "refName": "refs/heads/main"
-                  }
-                }
-              },
-              "templateParameters": {
-                "githubArtifactUrl": "'"$ARTIFACT_URL"'"
-              }
-            }' \
-            "$PIPELINE_API_URL"
-
+        uses: Azure/pipelines@v1.2
+        with:
+          azure-devops-project-url: ${{ secrets.AZURE_DEVOPS_PROJECT_URL }}
+          azure-pipeline-name: 'thattonBL.Building33MockApi'
+          azure-devops-token: ${{ secrets.AZURE_DEVOPS_PAT }}
+      
+      - uses: actions/checkout@v2
