@@ -1,33 +1,34 @@
 trigger: none
 
-parameters:
-  - name: githubArtifactUrl
-    type: string
-    default: ''
+pool:
+  vmImage: 'ubuntu-latest'
 
 variables:
-  # Name of the Azure Web App
-  webAppName: "building33MockApi"
+  AZURE_CONTAINER_APP_NAME: 'building33-mock-api-iac'
+  RESOURCE_GROUP: 'Gateway-Resources-IAC'
+  DOCKER_IMAGE: 'attonbomb/building33mockapi:latest'  # Replace with your Docker Hub image path
 
 steps:
-  # Step 1: Download the artifact from GitHub
-  - script: |
-      echo "Downloading artifact from ${{ parameters.githubArtifactUrl }}"
-      curl -L -o artifact.zip "${{ parameters.githubArtifactUrl }}"
-      unzip artifact.zip -d ./downloaded-artifacts
-    displayName: "Download artifact from GitHub Actions"
-
-  # Step 2: List downloaded artifact contents (for debugging)
-  - script: |
-      echo "Contents of downloaded artifact:"
-      ls ./downloaded-artifacts
-    displayName: "List downloaded artifacts"
-
-  # Step 3: Deploy to Azure Web App
-  - task: AzureWebApp@1
-    displayName: "Deploy to Azure Web App"
+  - task: Docker@2
     inputs:
-      appType: webAppLinux
-      azureSubscription: 'Gateway-Resources-IAC-MI-Conn-2' # Service connection to Azure
-      appName: "$(webAppName)"
-      package: "$(Pipeline.Workspace)/downloaded-artifacts" # Path to the downloaded files
+      command: 'login'
+      containerRegistry: 'attonbomb-DockerHub-SC'
+
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'Gateway-Resources-IAC-MI-Conn-2'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        echo "Updating Azure Container App with the latest image"
+        az config set extension.use_dynamic_install=yes_without_prompt
+        
+        # Update the Azure Container App to pull the latest image
+        az containerapp update \
+          --name building33-mock-api-iac
+          --resource-group Gateway-IAC-Resources
+          --image attonbomb/building33mockapi:latest
+          --registry-server hub.docker.com
+
+        echo "Global Integration API Container App updated successfully"
+
