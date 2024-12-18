@@ -19,7 +19,6 @@ steps:
       echo "Determining Azure subscription..."
       if [ "$(Build.SourceBranchName)" = "development" ]; then
         echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]Dev-Gateway-Resources-MS"
-        echo "##vso[task.setvariable variable=DOCKER_IMAGE]attonbomb/building33mockapi:dev"
       else
         echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]Gateway-Resources-IAC-MI-Conn-2"
       fi
