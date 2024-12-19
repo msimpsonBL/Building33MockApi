@@ -34,7 +34,7 @@ steps:
         az config set extension.use_dynamic_install=yes_without_prompt
         
         # Update the Azure Container App to pull the latest image
-        az containerapp update \
+        az containerapp deploy \
           --name building33-mock-api-iac
           --resource-group Gateway-IAC-Resources
           --image $(DOCKER_IMAGE)
