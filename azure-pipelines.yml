@@ -22,7 +22,7 @@ steps:
       else
         echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]Gateway-Resources-IAC-MI-Conn-2"
       fi
-    displayName: 'Set Azure Subscription'
+    displayName: 'Set Azure Subscription to $(AZURE_SUBSCRIPTION)'
 
   - task: AzureCLI@2
     inputs:
@@ -40,5 +40,19 @@ steps:
           --image $(DOCKER_IMAGE)
           --registry-server hub.docker.com
 
-        echo "Global Integration API Container App updated successfully"
+        echo "Global Integration API Container App updated successfully for Azure Subscription $(AZURE_SUBSCRIPTION)"
+  
+  # Force a restart of the Azure Container App
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: $(AZURE_SUBSCRIPTION)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        echo "Restarting Azure Container App to apply changes"
+        az containerapp revision restart \
+          --name building33-mock-api-iac \
+          --resource-group Gateway-IAC-Resources
+
+        echo "Azure Container App restarted successfully"
 
