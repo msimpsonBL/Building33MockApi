@@ -16,7 +16,7 @@ steps:
   
   # Set the Azure subscription based on the branch
   - script: |
-      echo "Determining Azure subscription..."
+      echo "Determining Azure subscription...$(Build.SourceBranchName)"
       if [ "$(Build.SourceBranchName)" = "development" ]; then
         echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]Dev-Gateway-Resources-MS"
       else
