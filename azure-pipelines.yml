@@ -3,11 +3,17 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
+parameters:
+  - name: DOCKER_IMAGE_VERSION
+    type: string
+    default: 'latest'
+
 variables:
   AZURE_CONTAINER_APP_NAME: 'building33-mock-api-iac'
   RESOURCE_GROUP: 'Gateway-Resources-IAC'
-  DOCKER_IMAGE: 'attonbomb/building33mockapi:latest'  # Replace with your Docker Hub image path
+  DOCKER_IMAGE: 'attonbomb/building33mockapi'  # Replace with your Docker Hub image path
   AZURE_SUBSCRIPTION: 'Gateway-Resources-IAC-MI-Conn-2'
+  DOCKER_IMAGE_VERSION: ${{ parameters.DOCKER_IMAGE_VERSION }}
 steps:
   - task: Docker@2
     inputs:
@@ -37,7 +43,7 @@ steps:
         az containerapp deploy \
           --name building33-mock-api-iac
           --resource-group Gateway-IAC-Resources
-          --image $(DOCKER_IMAGE)
+          --image $(DOCKER_IMAGE):$(DOCKER_IMAGE_VERSION)
           --registry-server hub.docker.com
 
         echo "Global Integration API Container App updated successfully for Azure Subscription $(AZURE_SUBSCRIPTION)"
