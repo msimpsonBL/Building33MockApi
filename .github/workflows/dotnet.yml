@@ -22,7 +22,7 @@ jobs:
       - name: Extract Version Tag
         id: extract_version
         run: |
-          VERSION=$(grep 'LABEL version=' Dockerfile | sed 's/.*"\(.*\)"/\1/')
+          VERSION=$(grep 'LABEL version=' Building33MockApi/Dockerfile | sed 's/.*"\(.*\)"/\1/')
           echo "VERSION=$VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
@@ -36,6 +36,8 @@ jobs:
       # Step 3: Build the Docker image
       - name: Build Docker image
         run: |
+          echo "VERSION=$VERSION"
+          echo "VERSION from GITHUB_ENV is: ${{ env.VERSION }}"
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:latest -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:${{ env.VERSION }} -f Building33MockApi/Dockerfile .
 
       # Step 4: Push Docker image to Docker Hub

@@ -1,7 +1,5 @@
 #See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-LABEL version="3.0.0"
-
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
@@ -24,4 +22,5 @@ RUN dotnet publish "./Building33MockApi.csproj" -c $BUILD_CONFIGURATION -o /app/
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+LABEL version="3.0.0"
 ENTRYPOINT ["dotnet", "Building33MockApi.dll"]
