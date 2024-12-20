@@ -53,8 +53,6 @@ jobs:
           azure-devops-project-url: ${{ secrets.AZURE_DEVOPS_PROJECT_URL }}
           azure-pipeline-name: 'thattonBL.Building33MockApi'
           azure-devops-token: ${{ secrets.AZURE_DEVOPS_PAT }}
-          parameters: |
-              - name: DOCKER_IMAGE_VERSION
-                value: ${{ env.VERSION }}
+          azure-pipeline-variables: '{"DOCKER_IMAGE_VERSION": "${{ env.VERSION }}"}'
       
       - uses: actions/checkout@v2
