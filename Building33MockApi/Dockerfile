@@ -22,5 +22,5 @@ RUN dotnet publish "./Building33MockApi.csproj" -c $BUILD_CONFIGURATION -o /app/
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-LABEL version="3.0.0"
+LABEL version="3.0.1"
 ENTRYPOINT ["dotnet", "Building33MockApi.dll"]
