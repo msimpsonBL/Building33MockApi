@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "VERSION=$VERSION"
           echo "VERSION from GITHUB_ENV is: ${{ env.VERSION }}"
-          docker build --build-arg AZURE_DEVOPS_PAT=${{ secrets.AZURE_DEVOPS_PAT }} -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:${{ env.VERSION }} -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:latest -f Building33MockApi/Dockerfile .
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:latest -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:${{ env.VERSION }} -f Building33MockApi/Dockerfile .
 
       # Step 4: Push Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
@@ -53,8 +53,6 @@ jobs:
           azure-devops-project-url: ${{ secrets.AZURE_DEVOPS_PROJECT_URL }}
           azure-pipeline-name: 'thattonBL.Building33MockApi'
           azure-devops-token: ${{ secrets.AZURE_DEVOPS_PAT }}
-          parameters: |
-              - name: DOCKER_IMAGE_VERSION
-                value: ${{ env.VERSION }}
+          azure-pipeline-variables: '{"DOCKER_IMAGE_VERSION": "${{ env.VERSION }}"}'
       
       - uses: actions/checkout@v2
