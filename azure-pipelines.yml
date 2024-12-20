@@ -30,7 +30,6 @@ steps:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        echo "Using a different syntax ===== ${{variables['DOCKER_IMAGE_VERSION']}}"
         echo "Updating Azure Container App. The latest image version is ======= $(DOCKER_IMAGE_VERSION)"
         az config set extension.use_dynamic_install=yes_without_prompt
         
