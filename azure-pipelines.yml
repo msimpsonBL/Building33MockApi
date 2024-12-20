@@ -3,17 +3,11 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
-parameters:
-  - name: DOCKER_IMAGE_VERSION
-    type: string
-    default: 'latest'
-
 variables:
   AZURE_CONTAINER_APP_NAME: 'building33-mock-api-iac'
   RESOURCE_GROUP: 'Gateway-Resources-IAC'
   DOCKER_IMAGE: 'attonbomb/building33mockapi'  # Replace with your Docker Hub image path
   AZURE_SUBSCRIPTION: 'Gateway-Resources-IAC-MI-Conn-2'
-  DOCKER_IMAGE_VERSION: ${{ parameters.DOCKER_IMAGE_VERSION }}
 steps:
   - task: Docker@2
     inputs:
@@ -36,7 +30,7 @@ steps:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        echo "Updating Azure Container App with the latest image the latest image version is $(DOCKER_IMAGE_VERSION)"
+        echo "Updating Azure Container App. The latest image version is ======= $(DOCKER_IMAGE_VERSION)"
         az config set extension.use_dynamic_install=yes_without_prompt
         
         # Update the Azure Container App to pull the latest image
