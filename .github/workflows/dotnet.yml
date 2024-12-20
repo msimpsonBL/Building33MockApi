@@ -18,6 +18,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Step 2: Extract the Version tag from the Docker File
+      - name: Extract Version Tag
+        id: extract_version
+        run: |
+          VERSION=$(grep 'LABEL version=' Building33MockApi/Dockerfile | sed 's/.*"\(.*\)"/\1/')
+          echo "VERSION=$VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       # Step 2: Login to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -28,12 +36,13 @@ jobs:
       # Step 3: Build the Docker image
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:latest -f Building33MockApi/Dockerfile .
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:latest -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:${{ env.VERSION }} -f Building33MockApi/Dockerfile .
 
       # Step 4: Push Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
         run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:${{ env.VERSION }}
 
       # Step 5: Trigger Azure Release Pipeline
       - name: Trigger Azure DevOps Pipeline
@@ -42,5 +51,8 @@ jobs:
           azure-devops-project-url: ${{ secrets.AZURE_DEVOPS_PROJECT_URL }}
           azure-pipeline-name: 'thattonBL.Building33MockApi'
           azure-devops-token: ${{ secrets.AZURE_DEVOPS_PAT }}
+          parameters: |
+              - name: DOCKER_IMAGE_VERSION
+                value: ${{ env.VERSION }}
       
       - uses: actions/checkout@v2
