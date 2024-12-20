@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "VERSION=$VERSION"
           echo "VERSION from GITHUB_ENV is: ${{ env.VERSION }}"
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:v3.0.0 -f Building33MockApi/Dockerfile .
+          docker build --build-arg AZURE_DEVOPS_PAT=${{ secrets.AZURE_DEVOPS_PAT }} -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:${{ env.VERSION }} -t ${{ secrets.DOCKER_HUB_USERNAME }}/building33mockapi:latest -f Building33MockApi/Dockerfile .
 
       # Step 4: Push Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
