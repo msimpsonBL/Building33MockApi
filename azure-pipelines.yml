@@ -23,24 +23,6 @@ steps:
         echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]Gateway-Resources-IAC-MI-Conn-2"
       fi
     displayName: 'Set Azure Subscription to $(AZURE_SUBSCRIPTION)'
-
-  - task: AzureCLI@2
-    inputs:
-      azureSubscription: $(AZURE_SUBSCRIPTION)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        echo "Updating Azure Container App. The latest image version is ======= $(DOCKER_IMAGE_VERSION)"
-        az config set extension.use_dynamic_install=yes_without_prompt
-        
-        # Update the Azure Container App to pull the latest image
-        az containerapp deploy \
-          --name building33-mock-api-iac
-          --resource-group Gateway-IAC-Resources
-          --image $(DOCKER_IMAGE):$(DOCKER_IMAGE_VERSION)
-          --registry-server hub.docker.com
-
-        echo "Global Integration API Container App updated successfully for Azure Subscription $(AZURE_SUBSCRIPTION)"
   
   # Force a restart of the Azure Container App
   - task: AzureCLI@2
@@ -49,10 +31,19 @@ steps:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        echo "Restarting Azure Container App to apply changes"
+        echo "Restarting Azure Container App with new configuration"
+        echo "Updating Azure Container App. The latest image version is ======= $(DOCKER_IMAGE_VERSION)"
+        # Update the container image if applicable
+        az containerapp update \
+          --name building33-mock-api-iac \
+          --resource-group Gateway-IAC-Resources \
+          --image $(DOCKER_IMAGE):$(DOCKER_IMAGE_VERSION) \
+          --query "[].properties.provisioningState"
+        
+        # Restart the app
         az containerapp revision restart \
           --name building33-mock-api-iac \
           --resource-group Gateway-IAC-Resources
-
-        echo "Azure Container App restarted successfully"
+        
+        echo "Global Integration API Container App updated successfully for Azure Subscription $(AZURE_SUBSCRIPTION)"
 
