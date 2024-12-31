@@ -63,7 +63,8 @@ steps:
 
         az containerapp revision restart \
           --name $(AZURE_CONTAINER_APP_NAME) \
-          --resource-group $(RESOURCE_GROUP)
+          --resource-group $(RESOURCE_GROUP) \
+          --revision
         
         echo "Global Integration API Container App updated successfully for Azure Subscription $(AZURE_SUBSCRIPTION)"
 
