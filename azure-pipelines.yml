@@ -60,6 +60,10 @@ steps:
           --resource-group $(RESOURCE_GROUP) \
           --image $(DOCKER_IMAGE):latest \
           --query "[].properties.provisioningState"
+
+        az containerapp revision restart \
+          --name $(AZURE_CONTAINER_APP_NAME) \
+          --resource-group $(RESOURCE_GROUP)
         
         echo "Global Integration API Container App updated successfully for Azure Subscription $(AZURE_SUBSCRIPTION)"
 
