@@ -39,13 +39,13 @@ steps:
           --name building33-mock-api-iac \
           --resource-group Gateway-IAC-Resources \
           --image $(DOCKER_IMAGE):$(DOCKER_IMAGE_VERSION) \
-          --query "[].properties.provisioningState" \
-          --no-cache
+          --query "[].properties.provisioningState"
         
         # Restart the app
         az containerapp revision restart \
           --name building33-mock-api-iac \
-          --resource-group Gateway-IAC-Resources
+          --resource-group Gateway-IAC-Resources \
+          --revision building33-mock-api-iac--t8pcudb
         
         echo "Global Integration API Container App updated successfully for Azure Subscription $(AZURE_SUBSCRIPTION)"
 
