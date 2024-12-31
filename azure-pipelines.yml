@@ -58,7 +58,7 @@ steps:
         az containerapp update \
           --name $(AZURE_CONTAINER_APP_NAME) \
           --resource-group $(RESOURCE_GROUP) \
-          --image $(DOCKER_IMAGE):latest \ # $(DOCKER_IMAGE_VERSION) \
+          --image $(DOCKER_IMAGE):latest \
           --query "[].properties.provisioningState"
         
         # Restart the app
