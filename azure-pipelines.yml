@@ -31,20 +31,41 @@ steps:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
+        set -e
         set -x
+
         echo "Restarting Azure Container App with new configuration"
         echo "Updating Azure Container App. The latest image version is ======= $(DOCKER_IMAGE_VERSION)"
+
+        az account set --subscription "$(AZURE_SUBSCRIPTION)"
+        az containerapp list --query "[?name=='building33-mock-api-iac']" --output table
+        az group list --query "[?name=='Gateway-IAC-Resources']" --output table
+
+        # Validate resource group
+        echo "Validating resource group..."
+        if ! az group show --name "$(RESOURCE_GROUP)" > /dev/null 2>&1; then
+          echo "Error: Resource group '$(RESOURCE_GROUP)' does not exist."
+          exit 1
+        fi
+
+        # Validate container app
+        echo "Validating container app..."
+        if ! az containerapp show --name "$(AZURE_CONTAINER_APP_NAME)" --resource-group "$(RESOURCE_GROUP)" > /dev/null 2>&1; then
+          echo "Error: Container app '$(AZURE_CONTAINER_APP_NAME)' does not exist in resource group '$(RESOURCE_GROUP)'."
+          exit 1
+        fi
+
         # Update the container image if applicable
         az containerapp update \
-          --name building33-mock-api-iac \
-          --resource-group Gateway-IAC-Resources \
+          --name $(AZURE_CONTAINER_APP_NAME) \
+          --resource-group $(RESOURCE_GROUP) \
           --image $(DOCKER_IMAGE):$(DOCKER_IMAGE_VERSION) \
           --query "[].properties.provisioningState"
         
         # Restart the app
         az containerapp revision restart \
-          --name building33-mock-api-iac \
-          --resource-group Gateway-IAC-Resources \
+          --name $(AZURE_CONTAINER_APP_NAME) \
+          --resource-group $(RESOURCE_GROUP) \
           --revision building33-mock-api-iac--t8pcudb
         
         echo "Global Integration API Container App updated successfully for Azure Subscription $(AZURE_SUBSCRIPTION)"
