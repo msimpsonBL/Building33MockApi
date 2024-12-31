@@ -37,7 +37,6 @@ steps:
         echo "Restarting Azure Container App with new configuration"
         echo "Updating Azure Container App. The latest image version is ======= $(DOCKER_IMAGE_VERSION)"
 
-        az account set --subscription "$(AZURE_SUBSCRIPTION)"
         az containerapp list --query "[?name=='building33-mock-api-iac']" --output table
         az group list --query "[?name=='Gateway-IAC-Resources']" --output table
 
