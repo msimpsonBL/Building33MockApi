@@ -61,11 +61,5 @@ steps:
           --image $(DOCKER_IMAGE):latest \
           --query "[].properties.provisioningState"
         
-        # Restart the app
-        az containerapp revision restart \
-          --name $(AZURE_CONTAINER_APP_NAME) \
-          --resource-group $(RESOURCE_GROUP) \
-          --revision building33-mock-api-iac--drms06e
-        
         echo "Global Integration API Container App updated successfully for Azure Subscription $(AZURE_SUBSCRIPTION)"
 
