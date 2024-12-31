@@ -31,6 +31,7 @@ steps:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
+        set -x
         echo "Restarting Azure Container App with new configuration"
         echo "Updating Azure Container App. The latest image version is ======= $(DOCKER_IMAGE_VERSION)"
         # Update the container image if applicable
@@ -38,7 +39,8 @@ steps:
           --name building33-mock-api-iac \
           --resource-group Gateway-IAC-Resources \
           --image $(DOCKER_IMAGE):$(DOCKER_IMAGE_VERSION) \
-          --query "[].properties.provisioningState"
+          --query "[].properties.provisioningState" \
+          --no-cache
         
         # Restart the app
         az containerapp revision restart \
