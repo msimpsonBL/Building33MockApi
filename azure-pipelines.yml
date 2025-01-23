@@ -36,6 +36,9 @@ steps:
         set -e
         set -x
 
+        echo "Switching to Azure subscription: $(AZURE_SUBSCRIPTION)"
+        az account set --subscription "$(AZURE_SUBSCRIPTION)"
+
         echo "Restarting Azure Container App with new configuration"
         echo "Updating Azure Container App. The latest image version is ======= $(DOCKER_IMAGE_VERSION)"
 
