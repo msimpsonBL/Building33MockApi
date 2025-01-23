@@ -26,6 +26,12 @@ steps:
       fi
     displayName: 'Set Azure Subscription to $(AZURE_SUBSCRIPTION)'
   
+  # List the available subscriptions
+  - script: |
+      echo "Available Subscriptions:"
+      az account list --output table
+    displayName: 'List Available Subscriptions'
+  
   # Force a restart of the Azure Container App
   - task: AzureCLI@2
     inputs:
