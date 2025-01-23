@@ -18,19 +18,13 @@ steps:
   - script: |
       echo "Determining Azure subscription...$(Build.SourceBranchName)"
       if [ "$(Build.SourceBranchName)" == "development" ]; then
-        echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]Dev-Gateway-Resources-MS"
+        echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]matthew-simpson-VS-enterprise-sub-sc"
       elif [ "$(Build.SourceBranchName)" == "test" ]; then
         echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]alex-rostron-VS-enterprise-sub-sc"
       else
         echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]Gateway-Resources-IAC-MI-Conn-2"
       fi
     displayName: 'Set Azure Subscription to $(AZURE_SUBSCRIPTION)'
-  
-  # List the available subscriptions
-  - script: |
-      echo "Available Subscriptions:"
-      az account list --output table
-    displayName: 'List Available Subscriptions'
   
   # Force a restart of the Azure Container App
   - task: AzureCLI@2
