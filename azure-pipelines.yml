@@ -61,10 +61,23 @@ steps:
           --image $(DOCKER_IMAGE):latest \
           --query "[].properties.provisioningState"
 
-        az containerapp revision restart \
+        # Get the active revision
+        REVISION_NAME=$(az containerapp revision list \
           --name $(AZURE_CONTAINER_APP_NAME) \
           --resource-group $(RESOURCE_GROUP) \
-          --revision building33-mock-api-iac--drms06e
+          --query "[?properties.active].name" -o tsv)
         
-        echo "Global Integration API Container App updated successfully for Azure Subscription $(AZURE_SUBSCRIPTION)"
+        echo "Active Revision: $REVISION_NAME"
 
+        # Restart to update live deployment if we have an active revision
+        if [ -n "$REVISION_NAME" ]; then
+          az containerapp revision restart \
+            --name $(AZURE_CONTAINER_APP_NAME) \
+            --resource-group $(RESOURCE_GROUP) \
+            --revision $REVISION_NAME
+        else
+          echo "No active revision found"
+          exit 1
+        fi
+        
+        echo "Building 33 Mock API Container App updated successfully for Azure Subscription $(AZURE_SUBSCRIPTION)"
