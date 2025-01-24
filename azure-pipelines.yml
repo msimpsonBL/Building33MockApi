@@ -18,7 +18,7 @@ steps:
   - script: |
       echo "Determining Azure subscription...$(Build.SourceBranchName)"
       if [ "$(Build.SourceBranchName)" == "development" ]; then
-        echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]c3a3d8e1-1944-4ac2-ba0b-d1c3f7408db9"
+        echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]598575f1-db38-4892-84cf-451480732802"
       elif [ "$(Build.SourceBranchName)" == "test" ]; then
         echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]alex-rostron-VS-enterprise-sub-sc"
       else
